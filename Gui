@@ -1,0 +1,688 @@
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * Created by Francisco on 11/18/2014.
+ */
+public class Gui extends JFrame implements MouseListener, ActionListener{
+
+    JLabel raft;
+    Cannibals carmen1 = new Cannibals();
+    Cannibals carmen2 = new Cannibals();
+    Cannibals carmen3 = new Cannibals();
+    Missionaries deer1 = new Missionaries();
+    Missionaries deer2 = new Missionaries();
+    Missionaries deer3 = new Missionaries();
+
+    boolean raftRight = true;
+    boolean leftSlotOpen = true, rightSlotOpen = true;
+
+    private int xPos = 500, xVel = 2;
+    boolean raftMoving = false;
+    Timer time = new Timer(10, this);
+
+    int deerPos[] = {0, 3}; // index 0 is left and index 1 is right;
+    int carmenPos[] = {0, 3};
+
+    private JMenuBar menubar;
+    private JMenu file;
+    private JMenuItem instructions, exit, hint;
+
+    public void moveRaft()
+    {
+        if(xPos > 500 || xPos < 250)
+        {
+            xVel = -xVel;
+            time.stop();
+            raftMoving = false;
+        }
+
+        if (deer1.missionaryOnRaft == true){ deer1.setMissionaryOnRaft(deer1.xLoc - xVel, 375);}
+        if (deer2.missionaryOnRaft == true){ deer2.setMissionaryOnRaft(deer2.xLoc - xVel, 375);}
+        if (deer3.missionaryOnRaft == true){ deer3.setMissionaryOnRaft(deer3.xLoc - xVel, 375);}
+        if (carmen1.cannibalOnRaft == true){ carmen1.setCannibalOnRaft(carmen1.getXLoc() - xVel, 425);}
+        if (carmen2.cannibalOnRaft == true){ carmen2.setCannibalOnRaft(carmen2.getXLoc() - xVel, 425);}
+        if (carmen3.cannibalOnRaft == true){ carmen3.setCannibalOnRaft(carmen3.getXLoc() - xVel, 425);}
+        xPos = xPos - xVel;
+        raft.setLocation(xPos, 425);
+    }
+
+    void setUp()
+    {
+        deerPos[0] = 0;
+        deerPos[1] = 3;
+        carmenPos[0] = 0;
+        carmenPos[1] = 3;
+
+        deer1.setMissionaryOnLand(700, 300);
+        deer1.missionaryOnRaft = false;
+        deer1.setSize();
+
+        deer2.setMissionaryOnLand(650, 250);
+        deer2.missionaryOnRaft = false;
+        deer2.setSize();
+
+        deer3.setMissionaryOnLand(600, 200);
+        deer3.missionaryOnRaft = false;
+        deer3.setSize();
+
+        carmen1.setLocation(800, 325);
+        carmen1.cannibalOnRaft = false;
+        carmen1.setSize();
+
+        carmen2.setLocation(750, 275);
+        carmen2.cannibalOnRaft = false;
+        carmen2.setSize();
+
+        carmen3.setLocation(700, 225);
+        carmen3.cannibalOnRaft = false;
+        carmen3.setSize();
+
+        raft.setLocation(498, 425);
+        raft.setSize(230, 80);
+        xPos = 500;
+        xVel = 2;
+        raftRight = true;
+        leftSlotOpen = true;
+        rightSlotOpen = true;
+    }
+
+    Gui(){
+        try{
+            this.setContentPane(new JLabel(new ImageIcon(ImageIO.read(new File("background.png")))));
+            raft = new JLabel(new ImageIcon(ImageIO.read(new File("Raft_Pixel.png"))));
+        }catch(IOException e){
+            System.out.println("Image not worked");
+        }
+
+
+        menubar = new JMenuBar();
+
+        file = new JMenu("What does this do?");
+        menubar.add(file);
+
+        instructions = new JMenuItem("Instructions");
+        file.add(instructions);
+
+        hint = new JMenuItem("Hint");
+        file.add(hint);
+
+        exit = new JMenuItem("Exit");
+        file.add(exit);
+
+        exit.addActionListener(this);
+        instructions.addActionListener(this);
+        hint.addActionListener(this);
+        this.setJMenuBar(menubar);
+
+        setUp();
+
+//        deer1.setMissionaryOnLand(700, 300);
+//        deer1.missionaryOnRaft = false;
+//        deer1.setSize();
+//        deer2.setMissionaryOnLand(650, 250);
+//        deer2.missionaryOnRaft = false;
+//        deer2.setSize();
+
+//        deer3.setMissionaryOnLand(600, 200);
+//        deer3.missionaryOnRaft = false;
+//        deer3.setSize();
+
+ //       carmen1.setLocation(800, 325);
+//        carmen1.cannibalOnRaft = false;
+//        carmen1.setSize();
+
+ //       carmen2.setLocation(750, 275);
+ //       carmen2.cannibalOnRaft = false;
+//        carmen2.setSize();
+
+ //       carmen3.setLocation(700, 225);
+ //       carmen3.cannibalOnRaft = false;
+ //       carmen3.setSize();
+
+        addMouseListener(this);
+        deer1.addMouseListener(this);
+        deer2.addMouseListener(this);
+        deer3.addMouseListener(this);
+        carmen1.addMouseListener(this);
+        carmen2.addMouseListener(this);
+        carmen3.addMouseListener(this);
+        raft.addMouseListener(this);
+
+        JOptionPane.showMessageDialog(null, "Click on What does this do?", "Welcome to Deers & Carmens", JOptionPane.PLAIN_MESSAGE);
+
+//        raft.setLocation(498, 425);
+//        raft.setSize(230, 80);
+        this.add(deer1.missionary);
+        this.add(deer2.missionary);
+        this.add(deer3.missionary);
+        this.add(carmen1.cannibal);
+        this.add(carmen2.cannibal);
+        this.add(carmen3.cannibal);
+        this.add(raft);
+        this.setResizable(false);
+        this.pack();
+        this.setVisible(true);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    }
+
+    boolean check_If_Two_Deers_Same_On_Raft()
+    {
+        if ((deer1.isMissionaryOnLeft == true && deer2.isMissionaryOnRight == true) || (deer2.isMissionaryOnLeft == true && deer1.isMissionaryOnRight == true))
+        {
+            return true;
+        }
+        else if ((deer1.isMissionaryOnLeft == true && deer3.isMissionaryOnRight == true) || (deer3.isMissionaryOnLeft == true && deer1.isMissionaryOnRight == true))
+        {
+            return true;
+        }
+        else if ((deer2.isMissionaryOnLeft == true & deer3.isMissionaryOnRight == true) || (deer3.isMissionaryOnLeft == true && deer2.isMissionaryOnRight == true))
+        {
+            return true;
+        }
+        else { return false; }
+    }
+
+    boolean check_If_Two_Carmens_Same_On_Raft()
+    {
+        if ((carmen1.isCannibalOnLeft == true && carmen2.isCannibalOnRight == true) || (carmen2.isCannibalOnLeft == true && carmen1.isCannibalOnRight == true))
+        {
+            return true;
+        }
+        else if ((carmen1.isCannibalOnLeft == true && carmen3.isCannibalOnRight == true) || (carmen3.isCannibalOnLeft == true && carmen1.isCannibalOnRight == true))
+        {
+            return true;
+        }
+        else if ((carmen2.isCannibalOnLeft == true & carmen3.isCannibalOnRight == true) || (carmen3.isCannibalOnLeft == true && carmen2.isCannibalOnRight == true))
+        {
+            return true;
+        }
+        else { return false; }
+    }
+
+    void count_Going_Right_To_Left()
+    {
+        if (check_If_Two_Deers_Same_On_Raft() == true)
+        {
+            deerPos[0] += 2;
+            deerPos[1] -= 2;
+            System.out.println("There are two deers on the raft");
+        }
+        else if (check_If_Two_Carmens_Same_On_Raft() == true)
+        {
+            carmenPos[0] += 2;
+            carmenPos[1] -= 2;
+            System.out.println("There are two carmens on the raft");
+        }
+        else {
+            if (deer1.missionaryOnRaft == true || deer2.missionaryOnRaft == true || deer3.missionaryOnRaft == true) {
+                deerPos[0] += 1;
+                deerPos[1] -= 1;
+                System.out.println("There is a deer on the raft");
+            }
+            if (carmen1.cannibalOnRaft == true || carmen2.cannibalOnRaft == true || carmen3.cannibalOnRaft == true) {
+                carmenPos[0] += 1;
+                carmenPos[1] -= 1;
+                System.out.println("There is a carmen on the raft");
+            }
+        }
+    }
+    void count_Going_Left_To_Right()
+    {
+        if (check_If_Two_Deers_Same_On_Raft() == true)
+        {
+            deerPos[0] -= 2;
+            deerPos[1] += 2;
+            System.out.println("There are two deers on the raft");
+        }
+
+        else if (check_If_Two_Carmens_Same_On_Raft() == true)
+        {
+            carmenPos[0] -= 2;
+            carmenPos[1] += 2;
+            System.out.println("There are two carmens on the raft");
+        }
+        else {
+            if (deer1.missionaryOnRaft == true || deer2.missionaryOnRaft == true || deer3.missionaryOnRaft == true) {
+                deerPos[0] -= 1;
+                deerPos[1] += 1;
+                System.out.println("There is a deer on the raft");
+            }
+            if (carmen1.cannibalOnRaft == true || carmen2.cannibalOnRaft == true || carmen3.cannibalOnRaft == true) {
+                carmenPos[0] -= 1;
+                carmenPos[1] += 1;
+                System.out.println("There is a carmen on the raft");
+            }
+        }
+    }
+
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if (raftRight == true){
+            if (e.getSource().equals(raft)){
+                if (leftSlotOpen == false|| rightSlotOpen == false) {
+                    time.start();
+                    raftRight = false;
+                    raftMoving = true;
+                    count_Going_Right_To_Left();
+                    System.out.println("Its moving!");
+                    System.out.println("Deers on Left: " + deerPos[0] + " Deers on Right: " + deerPos[1]);
+                    System.out.println("Carmens on Left: " + carmenPos[0] + " Carmens on Right: " + carmenPos[1]);
+       //             System.out.println("Carmens on Left: " + numCarmenLeft + "Carmens on Right: " + numCarmenRight);
+                }
+            }
+        }
+        else{
+            //move raft from left to right
+            if (e.getSource().equals(raft)){
+                if (leftSlotOpen == false|| rightSlotOpen == false) {
+                    time.start();
+                    raftRight = true;
+                    raftMoving = true;
+                    count_Going_Left_To_Right();
+                    System.out.println("Its moving back!");
+                    System.out.println("Deers on Left: " + deerPos[0] + " Deers on Right: " + deerPos[1]);
+                    System.out.println("Carmens on Left: " + carmenPos[0] + " Carmens on Right: " + carmenPos[1]);
+                }
+            }
+        }
+    }
+
+    public void moveDeerToRaft(Missionaries m, int x, int y, boolean isLeft) {
+        m.setMissionaryOnRaft(x, y);
+        m.missionaryOnRaft = true;
+        m.isMissionaryOnLeft = isLeft;
+        m.isMissionaryOnRight = !isLeft;
+    }
+
+    public void moveDeerToLand(Missionaries m, int x, int y)
+    {
+        m.setMissionaryOnLand(x, y);
+        m.missionaryOnRaft = false;
+        m.isMissionaryOnLeft = false;
+        m.isMissionaryOnRight = false;
+    }
+
+    public void moveCarmenToRaft(Cannibals c, int x, int y, boolean isLeft)
+    {
+        c.setLocation(x, y);
+        c.cannibalOnRaft = true;
+        c.isCannibalOnLeft = isLeft;
+        c.isCannibalOnRight = !isLeft;
+    }
+
+    public void moveCarmenToLand(Cannibals c, int x, int y)
+    {
+        c.setLocation(x, y);
+        c.cannibalOnRaft = false;
+        c.isCannibalOnLeft = false;
+        c.isCannibalOnRight = false;
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        if (raftRight == true){
+            if (raftMoving == false) {
+                if (leftSlotOpen == true && rightSlotOpen == true) {/*       PLACE ON LEFT         */
+                    if(e.getSource().equals(deer1.missionary)){
+                        if (deer1.missionaryOnRaft == false){
+                            moveDeerToRaft(deer1, 550, 375, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(deer2.missionary)){
+                        if (deer2.missionaryOnRaft == false){
+                            moveDeerToRaft(deer2, 550, 375, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(deer3.missionary)){
+                        if (deer3.missionaryOnRaft == false){
+                            moveDeerToRaft(deer3, 550, 375, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen1.cannibal)){
+                        if (carmen1.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen1, 550, 425, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen2.cannibal)){
+                        if (carmen2.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen2, 550, 425, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen3.cannibal)){
+                        if (carmen3.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen3, 550, 425, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                }
+                else if (leftSlotOpen == false && rightSlotOpen == true) { /*     PLACE ON RIGHT     */
+                    System.out.println("This happened");
+                    if (e.getSource().equals(deer1.missionary)){
+                        if (deer1.missionaryOnRaft == false){
+                            moveDeerToRaft(deer1, 600, 375, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(deer2.missionary)){
+                        if (deer2.missionaryOnRaft == false){
+                            moveDeerToRaft(deer2, 600, 375, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(deer3.missionary)){
+                        if (deer3.missionaryOnRaft == false){
+                            moveDeerToRaft(deer3, 600, 375, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen1.cannibal)){
+                        if (carmen1.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen1, 650, 425, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen2.cannibal)){
+                        if (carmen2.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen2, 650, 425, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen3.cannibal)){
+                        if (carmen3.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen3, 650, 425, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                } else if (leftSlotOpen == false) {/*                       REMOVE FROM LEFT            */
+                    if (e.getSource().equals(deer1.missionary)){
+                        if (deer1.missionaryOnRaft == true){
+                            moveDeerToLand(deer1, 700, 300);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(deer2.missionary)){
+                        if (deer2.missionaryOnRaft == true){
+                            moveDeerToLand(deer2, 650, 250);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(deer3.missionary)){
+                        if (deer3.missionaryOnRaft == true){
+                            moveDeerToLand(deer3, 600, 200);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen1.cannibal)){
+                        if (carmen1.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen1, 800, 325);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen2.cannibal)){
+                        if (carmen2.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen2, 750, 275);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen3.cannibal)){
+                        if (carmen3.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen3, 700, 225);
+                            leftSlotOpen = true;
+                        }
+                    }
+                }
+                else if (rightSlotOpen == false) {/*                        REMOVE FROM RIGHT               */
+                    if (e.getSource().equals(deer1.missionary)){
+                        if (deer1.missionaryOnRaft == true){
+                            moveDeerToLand(deer1, 700, 300);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(deer2.missionary)){
+                        if (deer2.missionaryOnRaft == true){
+                            moveDeerToLand(deer2, 650, 250);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(deer3.missionary)){
+                        if (deer3.missionaryOnRaft == true){
+                            moveDeerToLand(deer3, 600, 200);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen1.cannibal)){
+                        if (carmen1.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen1, 800, 325);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen2.cannibal)){
+                        if (carmen2.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen2, 750, 275);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen3.cannibal)){
+                        if (carmen3.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen3, 700, 225);
+                            rightSlotOpen = true;
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            if (raftMoving == false) {
+                if (leftSlotOpen == true && rightSlotOpen == true)
+                {
+                    if(e.getSource().equals(deer1.missionary)){ /*             PLACE ON LEFT                  */
+                        if (deer1.missionaryOnRaft == false){
+                            moveDeerToRaft(deer1, 300, 375, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(deer2.missionary)){
+                        if (deer2.missionaryOnRaft == false) {
+                            moveDeerToRaft(deer2, 300, 375, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(deer3.missionary)){
+                        if (deer3.missionaryOnRaft == false) {
+                            moveDeerToRaft(deer3, 300, 375, true);
+                            leftSlotOpen = false;
+                        }
+                    }else if (e.getSource().equals(carmen1.cannibal)){
+                        if (carmen1.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen1, 300, 425, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen2.cannibal)){
+                        if (carmen2.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen2, 300, 425, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen3.cannibal)){
+                        if (carmen3.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen3, 300, 425, true);
+                            leftSlotOpen = false;
+                        }
+                    }
+                }
+                else if (leftSlotOpen == false && rightSlotOpen == true)/*      PLACE ON RIGHT              */
+                {
+                    if (e.getSource().equals(deer1.missionary)){
+                        if (deer1.missionaryOnRaft == false){
+                            moveDeerToRaft(deer1, 350, 375, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(deer2.missionary)){
+                        if (deer2.missionaryOnRaft == false){
+                            moveDeerToRaft(deer2, 350, 375, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(deer3.missionary)){
+                        if (deer3.missionaryOnRaft == false){
+                            moveDeerToRaft(deer3, 350, 375, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen1.cannibal)){
+                        if (carmen1.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen1, 350, 425, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen2.cannibal)){
+                        if (carmen2.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen2, 350, 425, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen3.cannibal)){
+                        if (carmen3.cannibalOnRaft == false){
+                            moveCarmenToRaft(carmen3, 350, 425, false);
+                            rightSlotOpen = false;
+                        }
+                    }
+                }
+                else if (leftSlotOpen == false)/*          REMOVE FROM LEFT            */
+                {
+                    if (e.getSource().equals(deer1.missionary)){
+                        if (deer1.missionaryOnRaft == true){
+                            moveDeerToLand(deer1, 150, 300);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(deer2.missionary)){
+                        if (deer2.missionaryOnRaft == true){
+                            moveDeerToLand(deer2, 200, 250);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(deer3.missionary)){
+                        if (deer3.missionaryOnRaft == true){
+                            moveDeerToLand(deer3, 250, 200);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen1.cannibal)){
+                        if (carmen1.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen1, 50, 325);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen2.cannibal)){
+                        if (carmen2.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen2, 100, 275);
+                            leftSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen3.cannibal)){
+                        if (carmen3.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen3, 150, 225);
+                            leftSlotOpen = true;
+                        }
+                    }
+                }
+                else if (rightSlotOpen == false)/*          REMOVE FROM RIGHT           */
+                {
+                    if (e.getSource().equals(deer1.missionary)){
+                        if (deer1.missionaryOnRaft == true){
+                            moveDeerToLand(deer1, 150, 300);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(deer2.missionary)){
+                        if (deer2.missionaryOnRaft == true){
+                            moveDeerToLand(deer2, 200, 250);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(deer3.missionary)){
+                        if (deer3.missionaryOnRaft == true){
+                            moveDeerToLand(deer3, 250, 200);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen1.cannibal)){
+                        if (carmen1.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen1, 200, 325);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen2.cannibal)){
+                        if (carmen2.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen2, 250, 275);
+                            rightSlotOpen = true;
+                        }
+                    }
+                    else if (e.getSource().equals(carmen3.cannibal)){
+                        if (carmen3.cannibalOnRaft == true){
+                            moveCarmenToLand(carmen3, 300, 225);
+                            rightSlotOpen = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if ((carmenPos[0] > deerPos[0]) && (deerPos[0] >= 1))
+        {
+            System.out.println("You lose");
+            if (JOptionPane.showConfirmDialog(null, "You Lose! Play again?") == 0) {
+                setUp();
+            } else { System.exit(0); }
+        }
+        else if ((carmenPos[1] > deerPos[1]) && (deerPos[1] >= 1))
+        {
+            System.out.println("You lose");
+            if (JOptionPane.showConfirmDialog(null, "You Lost! Play again?") == 0) {
+                setUp();
+            } else { System.exit(0); }
+        }
+        else if ((carmenPos[0] == 3) && (deerPos[0] == 3))
+        {
+
+            System.out.println("You Win");
+            if (JOptionPane.showConfirmDialog(null, "Winner Winner Chicken Dinner! Play again?") == 0) {
+                setUp();
+            } else { System.exit(0); }
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {   }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+       if(e.getSource() == instructions){ JOptionPane.showMessageDialog(null, "Click on deers and Carmens to move them to the raft and the opposite shore.  If at any time there are more Carmens than deers on either shore you willl lose!  At times you may need to remove all from raft before placing new things on the raft.", "Instructions", JOptionPane.PLAIN_MESSAGE); }
+       else if (e.getSource() == exit){ System.exit(0); }
+       else if (e.getSource() == hint){ JOptionPane.showMessageDialog(null, "Move 2 carmens, bring one back, move the other two carmens and bring one back.  Than move 2 Deers.  Once all deers are over use the carmen to bring the other two carmens to the left.", "Hint", JOptionPane.PLAIN_MESSAGE); }
+       else { moveRaft(); }
+    }
+
+
+}
+
