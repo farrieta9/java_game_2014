@@ -1,0 +1,44 @@
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * Created by Francisco on 11/21/2014.
+ */
+public class Cannibals {
+    final private int xSize = 32, ySize = 32;
+    JLabel cannibal;
+    boolean cannibalOnRaft = false;
+    int xLoc, yLoc;
+    boolean isCannibalOnLeft = false;
+    boolean isCannibalOnRight = false;
+    Cannibals(){
+        try{
+            cannibal = new JLabel(new ImageIcon(ImageIO.read(new File("CarmenSprite.png"))));
+        }catch(IOException e){
+            System.out.println("Carmen picture not open!");
+        }
+    }
+
+    void setLocation(int x, int y) {
+        xLoc = x;
+        yLoc = y;
+        cannibal.setLocation(x, y);
+    }
+
+    void setSize(){ cannibal.setSize(xSize, ySize); }
+    void addMouseListener(MouseListener mouseListener) { cannibal.addMouseListener(mouseListener); }
+    void setCannibalOnLand(int x, int y){
+        xLoc = x;
+        yLoc = y;
+        cannibal.setLocation(x, y);
+    }
+    void setCannibalOnRaft(int x, int y){
+        xLoc = x;
+        yLoc = y;
+        cannibal.setLocation(x, y);
+    }
+    int getXLoc(){ return xLoc; }
+}
