@@ -1,0 +1,45 @@
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.text.DefaultHighlighter;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
+
+/**
+ * Created by Francisco on 11/21/2014.
+ */
+public class Missionaries {
+    final private int xSize = 80, ySize = 100;
+    JLabel missionary;
+    boolean missionaryOnRaft = false;
+    int xLoc, yLoc;
+    boolean isMissionaryOnLeft = false;
+    boolean isMissionaryOnRight = false;
+
+    Missionaries(){
+        try{
+            missionary = new JLabel(new ImageIcon(ImageIO.read(new File("PixelDeer.png"))));
+        }catch(IOException e){
+            System.out.println("Missionary picture not open!");
+        }
+    }
+
+    void setSize(){ missionary.setSize(xSize, ySize);}
+    void addMouseListener(MouseListener mouseListener) { missionary.addMouseListener(mouseListener); }
+
+    void setMissionaryOnLand(int x, int y){
+        xLoc = x;
+        yLoc = y;
+        missionary.setLocation(x, y);
+    }
+    void setMissionaryOnRaft(int x, int y){
+        xLoc = x;
+        yLoc = y;
+        missionary.setLocation(x, y);
+    }
+    int getXLoc(){return xLoc;}
+    int getYLoc(){return yLoc;}
+}
